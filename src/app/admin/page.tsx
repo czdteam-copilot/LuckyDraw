@@ -7,6 +7,7 @@ interface Winner {
   prize_id: number;
   prize_label: string;
   prize_amount: number;
+  user_name: string | null;
   bank_name: string | null;
   account_number: string | null;
   account_owner: string | null;
@@ -203,6 +204,7 @@ export default function AdminPage() {
               <thead>
                 <tr className="border-b border-white/10 text-white/60">
                   <th className="px-3 py-2">ID</th>
+                  <th className="px-3 py-2">Người chơi</th>
                   <th className="px-3 py-2">Giải thưởng</th>
                   <th className="px-3 py-2">Số tiền</th>
                   <th className="px-3 py-2">Thời gian</th>
@@ -215,6 +217,9 @@ export default function AdminPage() {
                     className="border-b border-white/5 text-white/80"
                   >
                     <td className="px-3 py-2">#{w.id}</td>
+                    <td className="px-3 py-2 font-medium text-gold-light">
+                      {w.user_name || "—"}
+                    </td>
                     <td className="px-3 py-2">{w.prize_label}</td>
                     <td className="px-3 py-2 font-medium text-gold">
                       {formatMoney(w.prize_amount)}
@@ -244,6 +249,7 @@ export default function AdminPage() {
               <thead>
                 <tr className="border-b border-white/10 text-white/60">
                   <th className="px-3 py-2">ID</th>
+                  <th className="px-3 py-2">Người chơi</th>
                   <th className="px-3 py-2">Giải thưởng</th>
                   <th className="px-3 py-2">Số tiền</th>
                   <th className="px-3 py-2">Ngân hàng</th>
@@ -259,6 +265,9 @@ export default function AdminPage() {
                     className="border-b border-white/5 transition-colors hover:bg-white/5"
                   >
                     <td className="px-3 py-2 text-white/60">#{w.id}</td>
+                    <td className="px-3 py-2 font-medium text-gold-light">
+                      {w.user_name || "—"}
+                    </td>
                     <td className="px-3 py-2">{w.prize_label}</td>
                     <td className="px-3 py-2 font-semibold text-gold">
                       {formatMoney(w.prize_amount)}

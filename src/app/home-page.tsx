@@ -7,6 +7,7 @@ import Envelope from "@/components/Envelope";
 import ResultCard from "@/components/ResultCard";
 import BankForm from "@/components/BankForm";
 import Particles from "@/components/Particles";
+import LoginPopup from "@/components/LoginPopup";
 
 interface Prize {
   id: number;
@@ -17,15 +18,24 @@ interface Prize {
 type AppState = "idle" | "shaking" | "result" | "form" | "done" | "no-prize";
 
 const COOKIE_KEY = "lixi_played";
+const USERNAME_KEY = "lixi_username";
 
 export default function HomePage() {
   const [state, setState] = useState<AppState>("idle");
   const [prize, setPrize] = useState<Prize | null>(null);
   const [alreadyPlayed, setAlreadyPlayed] = useState(false);
   const [savedPrize, setSavedPrize] = useState<Prize | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
+  const [showLogin, setShowLogin] = useState(false);
 
   // Check cookie on mount
   useEffect(() => {
+    // Restore username
+    const storedName = Cookies.get(USERNAME_KEY);
+    if (storedName) {
+      setUserName(storedName);
+    }
+
     const stored = Cookies.get(COOKIE_KEY);
     if (stored) {
       try {
@@ -41,6 +51,9 @@ export default function HomePage() {
         // Corrupted cookie, allow re-play
         Cookies.remove(COOKIE_KEY);
       }
+    } else if (!storedName) {
+      // No username yet and hasn't played → show login
+      setShowLogin(true);
     }
   }, []);
 
@@ -73,13 +86,23 @@ export default function HomePage() {
   const handleDraw = async () => {
     if (alreadyPlayed || state !== "idle") return;
 
+    // If user somehow has no name, show login
+    if (!userName) {
+      setShowLogin(true);
+      return;
+    }
+
     setState("shaking");
 
     // Wait for shake animation
     await new Promise((r) => setTimeout(r, 1500));
 
     try {
-      const res = await fetch("/api/draw", { method: "POST" });
+      const res = await fetch("/api/draw", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userName }),
+      });
       const data = await res.json();
 
       if (!data.success) {
@@ -111,8 +134,17 @@ export default function HomePage() {
     setState("done");
   };
 
+  const handleLogin = (name: string) => {
+    setUserName(name);
+    Cookies.set(USERNAME_KEY, name, { expires: 365 });
+    setShowLogin(false);
+  };
+
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 py-10">
+      {/* Login Popup */}
+      {showLogin && <LoginPopup onSubmit={handleLogin} />}
+
       {/* Floating particles background */}
       <Particles />
 
@@ -124,6 +156,11 @@ export default function HomePage() {
         <p className="mt-3 text-lg text-yellow-warm/80 sm:text-xl">
           Chúc Mừng Năm Mới — Nhận Lì Xì May Mắn!
         </p>
+        {userName && (
+          <p className="mt-2 text-base text-gold/90">
+            Xin chào, <span className="font-bold">{userName}</span>! 🎉
+          </p>
+        )}
       </div>
 
       {/* Step 1: Envelope */}

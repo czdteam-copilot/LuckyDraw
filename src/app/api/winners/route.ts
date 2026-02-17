@@ -21,8 +21,8 @@ export async function POST(req: NextRequest) {
       .from("winners")
       .update({
         bank_name: bankName,
-        account_number: accountNumber,
-        account_owner: accountOwner,
+        bank_number: accountNumber,
+        owner_name: accountOwner,
       })
       .eq("prize_id", prizeId)
       .is("bank_name", null)

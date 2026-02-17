@@ -17,6 +17,7 @@ CREATE TABLE public.winners (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     prize_id UUID REFERENCES public.prizes(id), -- Link tới giải đã trúng
     amount_won INTEGER NOT NULL,     -- Lưu cứng số tiền trúng
+    user_name TEXT,                  -- Tên người chơi (nhập khi mở lì xì)
     bank_name TEXT,                  -- Tên ngân hàng
     bank_number TEXT,                -- Số tài khoản
     owner_name TEXT,                 -- Tên chủ tài khoản
@@ -60,16 +61,16 @@ VALUES
 
 -- 5. Atomic draw function — prevents race conditions
 --    Uses FOR UPDATE SKIP LOCKED for row-level locking
-CREATE OR REPLACE FUNCTION draw_prize()
+CREATE OR REPLACE FUNCTION draw_prize(p_user_name TEXT DEFAULT NULL)
 RETURNS TABLE (
-  won_prize_id     BIGINT,
+  won_prize_id     UUID,
   won_prize_name  TEXT,
   won_prize_amount INTEGER
 )
 LANGUAGE plpgsql
 AS $$
 DECLARE
-  v_id     BIGINT;
+  v_id     UUID;
   v_name  TEXT;
   v_amount INTEGER;
 BEGIN
@@ -77,10 +78,10 @@ BEGIN
   SELECT p.id, p.name, p.amount
     INTO v_id, v_name, v_amount
     FROM prizes p
-   WHERE p.quantity > 0
-   ORDER BY random()
-   LIMIT 1
-     FOR UPDATE SKIP LOCKED;
+  WHERE p.quantity > 0
+  ORDER BY random()
+  LIMIT 1
+    FOR UPDATE SKIP LOCKED;
 
   -- If nothing found, the pool is empty
   IF v_id IS NULL THEN
@@ -94,12 +95,12 @@ BEGIN
   -- Decrement quantity
   UPDATE prizes SET quantity = quantity - 1 WHERE prizes.id = v_id;
 
-  -- Insert into winners (bank details added later)
-  INSERT INTO winners (prize_id, prize_label, prize_amount)
-    VALUES (v_id, v_label, v_amount);
+  -- Insert into winners with user_name (bank details added later)
+  INSERT INTO winners (prize_id, amount_won, user_name)
+    VALUES (v_id, v_amount, p_user_name);
 
   won_prize_id     := v_id;
-  won_prize_name  := v_label;
+  won_prize_name  := v_name;
   won_prize_amount := v_amount;
   RETURN NEXT;
 END;

@@ -4,10 +4,15 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 export const dynamic = "force-dynamic";
 
 // POST /api/draw  — Atomically draw one prize
-export async function POST() {
+export async function POST(req: Request) {
   try {
-    // Call the atomic PL/pgSQL function
-    const { data, error } = await supabaseAdmin.rpc("draw_prize");
+    const body = await req.json().catch(() => ({}));
+    const userName = body.userName || null;
+
+    // Call the atomic PL/pgSQL function with user_name
+    const { data, error } = await supabaseAdmin.rpc("draw_prize", {
+      p_user_name: userName,
+    });
 
     if (error) {
       console.error("draw_prize RPC error:", error);
@@ -32,7 +37,7 @@ export async function POST() {
       success: true,
       prize: {
         id: row.won_prize_id,
-        label: row.won_prize_label,
+        label: row.won_prize_name,
         amount: row.won_prize_amount,
       },
     });
