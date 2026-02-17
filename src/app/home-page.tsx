@@ -43,8 +43,16 @@ export default function HomePage() {
         const parsed = JSON.parse(stored);
         setAlreadyPlayed(true);
         if (parsed.amount > 0) {
-          setSavedPrize(parsed);
-          setState("done");
+          if (parsed.bankSubmitted) {
+            // Already submitted bank info → show done
+            setSavedPrize(parsed);
+            setState("done");
+          } else {
+            // Won a prize but hasn't submitted bank info → show form
+            setPrize(parsed);
+            setSavedPrize(parsed);
+            setState("form");
+          }
         } else {
           setState("no-prize");
         }
@@ -132,6 +140,15 @@ export default function HomePage() {
   };
 
   const handleBankSubmitted = () => {
+    // Mark bank info as submitted in the cookie so returning users see "done"
+    const current = prize || savedPrize;
+    if (current) {
+      Cookies.set(
+        COOKIE_KEY,
+        JSON.stringify({ ...current, bankSubmitted: true }),
+        { expires: 365 }
+      );
+    }
     setState("done");
   };
 

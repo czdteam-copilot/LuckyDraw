@@ -233,6 +233,7 @@ export default function AdminPage() {
                   <th className="px-3 py-2">Người chơi</th>
                   <th className="px-3 py-2">Số tiền</th>
                   <th className="px-3 py-2">Thời gian</th>
+                  <th className="px-3 py-2">Đã CK</th>
                 </tr>
               </thead>
               <tbody>
@@ -250,6 +251,19 @@ export default function AdminPage() {
                     </td>
                     <td className="px-3 py-2 text-white/50">
                       {formatDate(w.created_at)}
+                    </td>
+                    <td className="px-3 py-2">
+                      <button
+                        onClick={() => toggleTransferred(w.id, w.is_transferred)}
+                        className={`rounded-full px-3 py-1 text-xs font-semibold transition-all ${
+                          w.is_transferred
+                            ? "bg-green-500/20 text-green-400 hover:bg-green-500/30"
+                            : "bg-white/10 text-white/40 hover:bg-white/20 hover:text-white/60"
+                        }`}
+                        title={w.is_transferred ? "Đánh dấu chưa CK" : "Đánh dấu đã CK"}
+                      >
+                        {w.is_transferred ? "✅ Đã CK" : "⏳ Chưa CK"}
+                      </button>
                     </td>
                   </tr>
                 ))}
