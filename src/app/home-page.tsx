@@ -151,10 +151,10 @@ export default function HomePage() {
       {/* Decorative header */}
       <div className="animate-fadeInUp mb-2 text-center">
         <h1 className="lucky-text text-4xl font-extrabold tracking-wider sm:text-5xl md:text-6xl">
-          🧧 Lì Xì Online 🧧
+          🧧 Lì Xì - From BaChinh.Pham 🧧
         </h1>
         <p className="mt-3 text-lg text-yellow-warm/80 sm:text-xl">
-          Chúc Mừng Năm Mới — Nhận Lì Xì May Mắn!
+          Chúc Mừng Năm Mới — Cùng Nhận Lì Xì May Mắn!
         </p>
         {userName && (
           <p className="mt-2 text-base text-gold/90">
@@ -189,7 +189,7 @@ export default function HomePage() {
               onClick={() => setState("form")}
               className="rounded-full bg-gradient-to-r from-gold to-gold-light px-6 py-3 text-lg font-bold text-red-dark shadow-lg transition-all hover:scale-105"
             >
-              💰 Nhận tiền ngay
+              💰 Rút Lì xì ngay
             </button>
           </div>
         </div>
@@ -214,7 +214,7 @@ export default function HomePage() {
               <p className="mt-2 text-lg text-yellow-warm">
                 Bạn đã nhận được{" "}
                 <span className="font-bold text-gold">
-                  {(prize || savedPrize)!.label}
+                  {(prize || savedPrize)!.label} - ({new Intl.NumberFormat("vi-VN").format((prize || savedPrize)!.amount)} VND)
                 </span>
               </p>
             )}
@@ -242,7 +242,7 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="mt-auto pt-10 text-center text-xs text-white/30">
-        © {new Date().getFullYear()} Lì Xì Online — Chúc Mừng Năm Mới 🎆
+        © {new Date().getFullYear()} Lì Xì Online — Chúc Mừng Năm Mới - From BaChinh.Pham 🎆
       </footer>
     </main>
   );
