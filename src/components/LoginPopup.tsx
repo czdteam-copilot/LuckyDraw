@@ -64,7 +64,7 @@ export default function LoginPopup({ onSubmit }: LoginPopupProps) {
               setName(e.target.value);
               setError("");
             }}
-            placeholder="VD: Nguyễn Văn A"
+            placeholder="VD: Đầu 3 Tổng 9"
             maxLength={50}
             className="mb-4 w-full rounded-lg border border-gold/30 bg-white/10 px-4 py-3 text-center text-lg text-white placeholder-white/40 outline-none transition-colors focus:border-gold focus:ring-1 focus:ring-gold"
           />

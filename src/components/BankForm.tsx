@@ -3,7 +3,7 @@
 import { useState, FormEvent } from "react";
 
 interface BankFormProps {
-  prizeId: number;
+  prizeId: string;
   onSuccess: () => void;
 }
 

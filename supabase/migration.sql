@@ -16,7 +16,7 @@ CREATE TABLE public.prizes (
 CREATE TABLE public.winners (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     prize_id UUID REFERENCES public.prizes(id), -- Link tới giải đã trúng
-    amount_won INTEGER NOT NULL,     -- Lưu cứng số tiền trúng
+    prize_amount INTEGER NOT NULL,     -- Lưu cứng số tiền trúng
     user_name TEXT,                  -- Tên người chơi (nhập khi mở lì xì)
     bank_name TEXT,                  -- Tên ngân hàng
     bank_number TEXT,                -- Số tài khoản
@@ -64,7 +64,7 @@ VALUES
 CREATE OR REPLACE FUNCTION draw_prize(p_user_name TEXT DEFAULT NULL)
 RETURNS TABLE (
   won_prize_id     UUID,
-  won_prize_name  TEXT,
+  won_prize_name   TEXT,
   won_prize_amount INTEGER
 )
 LANGUAGE plpgsql
@@ -96,7 +96,7 @@ BEGIN
   UPDATE prizes SET quantity = quantity - 1 WHERE prizes.id = v_id;
 
   -- Insert into winners with user_name (bank details added later)
-  INSERT INTO winners (prize_id, amount_won, user_name)
+  INSERT INTO winners (prize_id, prize_amount, user_name)
     VALUES (v_id, v_amount, p_user_name);
 
   won_prize_id     := v_id;

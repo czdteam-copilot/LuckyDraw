@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   const { data, error } = await supabaseAdmin
     .from("prizes")
-    .select("id, label, amount, quantity")
+    .select("id, name, amount, quantity")
     .order("amount", { ascending: true });
 
   if (error) {

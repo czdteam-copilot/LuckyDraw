@@ -11,7 +11,8 @@ A beautiful Lunar New Year "Lucky Money (Lì Xì)" web application built with **
 | 🎯 **Fair Draw** | Atomic PL/pgSQL function with `FOR UPDATE SKIP LOCKED` — zero race conditions |
 | 🧧 **Red Envelope** | Animated red envelope with shake + float effects |
 | 🎉 **Confetti** | Confetti explosion on winning |
-| 💳 **Bank Form** | Winners submit bank details (name, account number, owner) |
+| � **Login Popup** | Users enter their name before drawing — helps admin identify winners |
+| 💳 **Bank Form** | Winners submit bank details (bank name, account number, owner) |
 | 🔐 **Admin Dashboard** | Password-protected `/admin` route to view winners & transfer money |
 | 🍪 **Replay Prevention** | Cookie-based check prevents accidental double draws |
 | 📱 **Responsive** | Works on mobile, tablet, and desktop |
@@ -59,22 +60,24 @@ npm run dev
 ### `prizes` table
 | Column | Type | Description |
 |---|---|---|
-| id | BIGINT | Auto-increment PK |
-| label | TEXT | Display name (e.g. "50,000 VND") |
+| id | UUID | Primary key (auto-generated) |
+| name | TEXT | Prize name (e.g. "Giải May Mắn") |
 | amount | INTEGER | Value in VND |
 | quantity | INTEGER | Remaining count |
+| created_at | TIMESTAMPTZ | Creation timestamp |
 
 ### `winners` table
 | Column | Type | Description |
 |---|---|---|
-| id | BIGINT | Auto-increment PK |
-| prize_id | BIGINT | FK → prizes.id |
-| prize_label | TEXT | Cached label |
-| prize_amount | INTEGER | Cached amount |
+| id | UUID | Primary key (auto-generated) |
+| prize_id | UUID | FK → prizes.id |
+| prize_amount | INTEGER | Prize value (cached at draw time) |
+| user_name | TEXT | Player's display name |
 | bank_name | TEXT | Bank or e-wallet name |
-| account_number | TEXT | Account / phone number |
-| account_owner | TEXT | Account holder name |
-| created_at | TIMESTAMPTZ | Timestamp |
+| bank_number | TEXT | Account / phone number |
+| owner_name | TEXT | Account holder name |
+| is_transferred | BOOLEAN | Whether admin has sent the money |
+| created_at | TIMESTAMPTZ | Draw timestamp |
 
 ### `draw_prize()` — PL/pgSQL Function
 
@@ -105,6 +108,7 @@ src/
 │       └── winners/route.ts # GET/POST — winners list & bank form
 ├── components/
 │   ├── Envelope.tsx         # Red envelope UI
+│   ├── LoginPopup.tsx       # Name input popup
 │   ├── ResultCard.tsx       # Prize result display
 │   ├── BankForm.tsx         # Bank details form
 │   └── Particles.tsx        # Floating particles background
@@ -132,3 +136,12 @@ supabase/
 - [Supabase](https://supabase.com/) (PostgreSQL + RLS + RPC)
 - [canvas-confetti](https://www.npmjs.com/package/canvas-confetti)
 - [js-cookie](https://www.npmjs.com/package/js-cookie)
+
+---
+
+## 🚀 Deployment (Vercel)
+
+1. Push code to GitHub
+2. Import the repo at [vercel.com](https://vercel.com)
+3. Add environment variables: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_PASSWORD`
+4. Deploy — you'll get a public URL like `https://lucky-draw-xxx.vercel.app`

@@ -10,7 +10,7 @@ import Particles from "@/components/Particles";
 import LoginPopup from "@/components/LoginPopup";
 
 interface Prize {
-  id: number;
+  id: string;
   label: string;
   amount: number;
 }

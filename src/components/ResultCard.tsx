@@ -1,7 +1,7 @@
 "use client";
 
 interface Prize {
-  id: number;
+  id: string;
   label: string;
   amount: number;
 }

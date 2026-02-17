@@ -3,20 +3,20 @@
 import { useState, useEffect, useCallback } from "react";
 
 interface Winner {
-  id: number;
-  prize_id: number;
-  prize_label: string;
+  id: string;
+  prize_id: string;
   prize_amount: number;
   user_name: string | null;
   bank_name: string | null;
-  account_number: string | null;
-  account_owner: string | null;
+  bank_number: string | null;
+  owner_name: string | null;
+  is_transferred: boolean;
   created_at: string;
 }
 
 interface Prize {
-  id: number;
-  label: string;
+  id: string;
+  name: string;
   amount: number;
   quantity: number;
 }
@@ -181,7 +181,7 @@ export default function AdminPage() {
               key={p.id}
               className="rounded-lg border border-gold/10 bg-white/5 p-3 text-center"
             >
-              <p className="text-sm text-white/60">{p.label}</p>
+              <p className="text-sm text-white/60">{p.name}</p>
               <p
                 className={`text-2xl font-bold ${p.quantity > 0 ? "text-gold" : "text-red-400"}`}
               >
@@ -205,7 +205,6 @@ export default function AdminPage() {
                 <tr className="border-b border-white/10 text-white/60">
                   <th className="px-3 py-2">ID</th>
                   <th className="px-3 py-2">Người chơi</th>
-                  <th className="px-3 py-2">Giải thưởng</th>
                   <th className="px-3 py-2">Số tiền</th>
                   <th className="px-3 py-2">Thời gian</th>
                 </tr>
@@ -216,11 +215,10 @@ export default function AdminPage() {
                     key={w.id}
                     className="border-b border-white/5 text-white/80"
                   >
-                    <td className="px-3 py-2">#{w.id}</td>
+                    <td className="px-3 py-2">#{String(w.id).slice(0, 8)}</td>
                     <td className="px-3 py-2 font-medium text-gold-light">
                       {w.user_name || "—"}
                     </td>
-                    <td className="px-3 py-2">{w.prize_label}</td>
                     <td className="px-3 py-2 font-medium text-gold">
                       {formatMoney(w.prize_amount)}
                     </td>
@@ -250,11 +248,11 @@ export default function AdminPage() {
                 <tr className="border-b border-white/10 text-white/60">
                   <th className="px-3 py-2">ID</th>
                   <th className="px-3 py-2">Người chơi</th>
-                  <th className="px-3 py-2">Giải thưởng</th>
                   <th className="px-3 py-2">Số tiền</th>
                   <th className="px-3 py-2">Ngân hàng</th>
                   <th className="px-3 py-2">Số tài khoản</th>
                   <th className="px-3 py-2">Chủ tài khoản</th>
+                  <th className="px-3 py-2">Đã CK</th>
                   <th className="px-3 py-2">Thời gian</th>
                 </tr>
               </thead>
@@ -264,20 +262,24 @@ export default function AdminPage() {
                     key={w.id}
                     className="border-b border-white/5 transition-colors hover:bg-white/5"
                   >
-                    <td className="px-3 py-2 text-white/60">#{w.id}</td>
+                    <td className="px-3 py-2 text-white/60">#{String(w.id).slice(0, 8)}</td>
                     <td className="px-3 py-2 font-medium text-gold-light">
                       {w.user_name || "—"}
                     </td>
-                    <td className="px-3 py-2">{w.prize_label}</td>
                     <td className="px-3 py-2 font-semibold text-gold">
                       {formatMoney(w.prize_amount)}
                     </td>
                     <td className="px-3 py-2">{w.bank_name}</td>
                     <td className="px-3 py-2 font-mono text-gold-light">
-                      {w.account_number}
+                      {w.bank_number}
                     </td>
                     <td className="px-3 py-2 font-medium uppercase">
-                      {w.account_owner}
+                      {w.owner_name}
+                    </td>
+                    <td className="px-3 py-2">
+                      {w.is_transferred
+                        ? <span className="text-green-400">✅</span>
+                        : <span className="text-white/30">—</span>}
                     </td>
                     <td className="px-3 py-2 text-white/50">
                       {formatDate(w.created_at)}
