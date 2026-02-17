@@ -7,27 +7,37 @@ export const dynamic = "force-dynamic";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { prizeId, bankName, accountNumber, accountOwner } = body;
+    const { winnerId, prizeId, userName, bankName, accountNumber, accountOwner } = body;
 
-    if (!prizeId || !bankName || !accountNumber || !accountOwner) {
+    if (!winnerId || !prizeId || !userName || !bankName || !accountNumber || !accountOwner) {
       return NextResponse.json(
         { success: false, message: "Vui lòng điền đầy đủ thông tin." },
         { status: 400 }
       );
     }
 
-    // Update the most recent winner row that matches this prize_id and has no bank info yet
-    const { error } = await supabaseAdmin
+    // Update the exact winner row: match by id, user_name, prize_id, and no bank info yet
+    const { error, count } = await supabaseAdmin
       .from("winners")
-      .update({
-        bank_name: bankName,
-        bank_number: accountNumber,
-        owner_name: accountOwner,
-      })
+      .update(
+        {
+          bank_name: bankName,
+          bank_number: accountNumber,
+          owner_name: accountOwner,
+        },
+        { count: "exact" }
+      )
+      .eq("id", winnerId)
       .eq("prize_id", prizeId)
-      .is("bank_name", null)
-      .order("created_at", { ascending: false })
-      .limit(1);
+      .eq("user_name", userName)
+      .is("bank_name", null);
+
+    if (!error && count === 0) {
+      return NextResponse.json(
+        { success: false, message: "Không tìm thấy bản ghi phù hợp hoặc đã cập nhật rồi." },
+        { status: 404 }
+      );
+    }
 
     if (error) {
       console.error("Update winner error:", error);
@@ -40,6 +50,49 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error("Winners API error:", err);
+    return NextResponse.json(
+      { success: false, message: "Server error" },
+      { status: 500 }
+    );
+  }
+}
+
+// PATCH /api/winners — Toggle is_transferred status (admin only)
+export async function PATCH(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { winnerId, isTransferred, password: pwd } = body;
+
+    if (pwd !== process.env.ADMIN_PASSWORD) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    if (!winnerId || typeof isTransferred !== "boolean") {
+      return NextResponse.json(
+        { success: false, message: "Missing winnerId or isTransferred" },
+        { status: 400 }
+      );
+    }
+
+    const { error } = await supabaseAdmin
+      .from("winners")
+      .update({ is_transferred: isTransferred })
+      .eq("id", winnerId);
+
+    if (error) {
+      console.error("Toggle transfer error:", error);
+      return NextResponse.json(
+        { success: false, message: error.message },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("PATCH winners error:", err);
     return NextResponse.json(
       { success: false, message: "Server error" },
       { status: 500 }

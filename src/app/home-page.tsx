@@ -11,6 +11,7 @@ import LoginPopup from "@/components/LoginPopup";
 
 interface Prize {
   id: string;
+  winnerId: string;
   label: string;
   amount: number;
 }
@@ -198,7 +199,12 @@ export default function HomePage() {
       {/* Step 4: Bank form */}
       {state === "form" && prize && (
         <div className="animate-fadeInUp mt-8 w-full max-w-md">
-          <BankForm prizeId={prize.id} onSuccess={handleBankSubmitted} />
+          <BankForm
+            winnerId={prize.winnerId}
+            prizeId={prize.id}
+            userName={userName!}
+            onSuccess={handleBankSubmitted}
+          />
         </div>
       )}
 

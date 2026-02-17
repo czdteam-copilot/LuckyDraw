@@ -3,7 +3,9 @@
 import { useState, FormEvent } from "react";
 
 interface BankFormProps {
+  winnerId: string;
   prizeId: string;
+  userName: string;
   onSuccess: () => void;
 }
 
@@ -34,7 +36,7 @@ const POPULAR_BANKS = [
   "Khác",
 ];
 
-export default function BankForm({ prizeId, onSuccess }: BankFormProps) {
+export default function BankForm({ winnerId, prizeId, userName, onSuccess }: BankFormProps) {
   const [bankName, setBankName] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const [accountOwner, setAccountOwner] = useState("");
@@ -57,7 +59,9 @@ export default function BankForm({ prizeId, onSuccess }: BankFormProps) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          winnerId,
           prizeId,
+          userName,
           bankName,
           accountNumber: accountNumber.trim(),
           accountOwner: accountOwner.trim(),

@@ -66,6 +66,32 @@ export default function AdminPage() {
     fetchData(password);
   };
 
+  const toggleTransferred = async (winnerId: string, current: boolean) => {
+    try {
+      const res = await fetch("/api/winners", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          winnerId,
+          isTransferred: !current,
+          password,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setWinners((prev) =>
+          prev.map((w) =>
+            w.id === winnerId ? { ...w, is_transferred: !current } : w
+          )
+        );
+      } else {
+        alert(data.message || "Cập nhật thất bại");
+      }
+    } catch {
+      alert("Lỗi kết nối.");
+    }
+  };
+
   // Auto-refresh every 30s
   useEffect(() => {
     if (!authenticated) return;
@@ -277,9 +303,17 @@ export default function AdminPage() {
                       {w.owner_name}
                     </td>
                     <td className="px-3 py-2">
-                      {w.is_transferred
-                        ? <span className="text-green-400">✅</span>
-                        : <span className="text-white/30">—</span>}
+                      <button
+                        onClick={() => toggleTransferred(w.id, w.is_transferred)}
+                        className={`rounded-full px-3 py-1 text-xs font-semibold transition-all ${
+                          w.is_transferred
+                            ? "bg-green-500/20 text-green-400 hover:bg-green-500/30"
+                            : "bg-white/10 text-white/40 hover:bg-white/20 hover:text-white/60"
+                        }`}
+                        title={w.is_transferred ? "Đánh dấu chưa CK" : "Đánh dấu đã CK"}
+                      >
+                        {w.is_transferred ? "✅ Đã CK" : "⏳ Chưa CK"}
+                      </button>
                     </td>
                     <td className="px-3 py-2 text-white/50">
                       {formatDate(w.created_at)}

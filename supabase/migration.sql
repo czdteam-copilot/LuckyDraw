@@ -50,6 +50,12 @@ CREATE POLICY "Allow service read on winners"
   ON winners FOR SELECT
   USING (true);
 
+-- Allow service_role to update winners (bank info + transfer status)
+CREATE POLICY "Allow service update on winners"
+  ON winners FOR UPDATE
+  USING (true)
+  WITH CHECK (true);
+
 -- 4. Seed the prize pool
 INSERT INTO public.prizes (name, amount, quantity)
 VALUES
@@ -63,6 +69,7 @@ VALUES
 --    Uses FOR UPDATE SKIP LOCKED for row-level locking
 CREATE OR REPLACE FUNCTION draw_prize(p_user_name TEXT DEFAULT NULL)
 RETURNS TABLE (
+  won_winner_id    UUID,
   won_prize_id     UUID,
   won_prize_name   TEXT,
   won_prize_amount INTEGER
@@ -70,6 +77,7 @@ RETURNS TABLE (
 LANGUAGE plpgsql
 AS $$
 DECLARE
+  v_winner_id UUID;
   v_id     UUID;
   v_name  TEXT;
   v_amount INTEGER;
@@ -85,8 +93,9 @@ BEGIN
 
   -- If nothing found, the pool is empty
   IF v_id IS NULL THEN
+    won_winner_id    := NULL;
     won_prize_id     := NULL;
-    won_prize_name  := NULL;
+    won_prize_name   := NULL;
     won_prize_amount := NULL;
     RETURN NEXT;
     RETURN;
@@ -95,12 +104,14 @@ BEGIN
   -- Decrement quantity
   UPDATE prizes SET quantity = quantity - 1 WHERE prizes.id = v_id;
 
-  -- Insert into winners with user_name (bank details added later)
+  -- Insert into winners with user_name and return the new row ID
   INSERT INTO winners (prize_id, prize_amount, user_name)
-    VALUES (v_id, v_amount, p_user_name);
+    VALUES (v_id, v_amount, p_user_name)
+    RETURNING id INTO v_winner_id;
 
+  won_winner_id    := v_winner_id;
   won_prize_id     := v_id;
-  won_prize_name  := v_name;
+  won_prize_name   := v_name;
   won_prize_amount := v_amount;
   RETURN NEXT;
 END;

@@ -37,6 +37,7 @@ export async function POST(req: Request) {
       success: true,
       prize: {
         id: row.won_prize_id,
+        winnerId: row.won_winner_id,
         label: row.won_prize_name,
         amount: row.won_prize_amount,
       },
